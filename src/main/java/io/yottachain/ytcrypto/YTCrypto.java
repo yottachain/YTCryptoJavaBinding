@@ -25,6 +25,30 @@ public class YTCrypto {
         }
     }
 
+    public static String ecrecover(byte[] data, String signature) throws YTCryptoException {
+        Pointer dataPtr = new Memory(Native.getNativeSize(Byte.TYPE) * data.length);
+        for (int i=0; i<data.length; i++) {
+            dataPtr.setByte(i, data[i]);
+        }
+        Pointer ptr = YTCryptoWrapper.YTCryptoLib.INSTANCE.Ecrecover(dataPtr, data.length, signature);
+        Native.free(Pointer.nativeValue(dataPtr));
+        Pointer.nativeValue(dataPtr, 0);
+        if (ptr != null) {
+            try {
+                YTCryptoWrapper.Stringwitherror swe = new YTCryptoWrapper.Stringwitherror(ptr);
+                if (swe.error != null) {
+                    String error = swe.error.getString(0);
+                    throw new YTCryptoException(error);
+                }
+                return swe.str.getString(0);
+            } finally {
+                YTCryptoWrapper.YTCryptoLib.INSTANCE.FreeStringwitherror(ptr);
+            }
+        } else {
+            throw new YTCryptoException("unknown exception");
+        }
+    }
+
     public static String sign(String privateKey, byte[] data) throws YTCryptoException {
         Pointer dataPtr = new Memory(Native.getNativeSize(Byte.TYPE) * data.length);
         for (int i=0; i<data.length; i++) {
@@ -115,7 +139,7 @@ public class YTCrypto {
         System.out.println(kp.getPrivateKey());
         System.out.println(kp.getPublicKey());
         String sig = sign(kp.getPrivateKey(), "123456".getBytes());
-        System.out.println(verify(kp.getPublicKey(), "123456".getBytes(), sig));
+        System.out.println(verify("8btkHoK66PWcDjArN5N7FrMGq3wsoUS3YtFL9ocmdrkH4hBLTU", "123456".getBytes(), "SIG_K1_JuYfBF39gp3JSjYpk2czYMVCu8jbJ2T9WyHf38k9bTVrRUaPyEDL8uWjcLbdVhgmfTmNWPDJjJp7jaJoMg3LENw43PNXJB"));
         byte[] ecdata = eccEncrypt("123hahaha".getBytes(), kp.getPublicKey());
         System.out.println(new String(ecdata));
         byte[] data = eccDecrypt(ecdata, kp.getPrivateKey());

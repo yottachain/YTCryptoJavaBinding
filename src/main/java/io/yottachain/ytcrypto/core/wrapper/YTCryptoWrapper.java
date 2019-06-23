@@ -60,6 +60,7 @@ public class YTCryptoWrapper {
                         YTCryptoLib.class);
 
         Pointer CreateKey();
+        Pointer Ecrecover(Pointer data, long size, String signature);
         Pointer Sign(String privateKey, Pointer data, long size);
         int Verify(String publicKey, Pointer data, long size, String signature);
         Pointer ECCEncrypt(Pointer data, long size, String publicKey);

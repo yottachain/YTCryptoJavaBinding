@@ -15,6 +15,12 @@ public class YTCryptoTest {
     }
 
     @Test
+    public void ecrecoverTest() throws YTCryptoException {
+        String pubkey = YTCrypto.ecrecover("123456".getBytes(), "SIG_K1_KUNpoQZM1zDkWi5g93u8S4cWjWfpfHmh3aC2iZHBFZWbeipRWRVVDvnevEoEBuGSLYExHdQHkP6MWr2dhQ8FThNjQEuEon");
+        assertEquals("8goL8rkhDAyLkVzwAhYUcHMNfHTAqFgJvw3W3LKu6ibXQ7pv2F", pubkey);
+    }
+
+    @Test
     public void signTest() throws YTCryptoException {
         String sig = YTCrypto.sign("5J2XGbuK9L35VtxMKjEMWoCB3Aw7RdAVKuPizgqzwSgKLseXSYs", "123456".getBytes());
         assertNotNull(sig);
