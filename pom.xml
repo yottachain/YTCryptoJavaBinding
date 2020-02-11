@@ -33,6 +33,83 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="${basedir}/src/main/resources/linux-x86-64"/>
+                                <mkdir dir="${basedir}/src/main/resources/win32-x86-64"/>
+                                <mkdir dir="${basedir}/src/main/resources/linux-aarch64"/>
+                                <mkdir dir="${basedir}/src/test/resources/linux-x86-64"/>
+                                <mkdir dir="${basedir}/src/test/resources/win32-x86-64"/>
+                                <mkdir dir="${basedir}/src/test/resources/linux-aarch64"/>
+                                <mkdir dir="${basedir}/target"/>
+                                <delete>
+                                    <fileset dir="${basedir}/src/main/resources" includes="**/*.so"/>
+                                    <fileset dir="${basedir}/src/main/resources" includes="**/*.dll"/>
+                                    <fileset dir="${basedir}/src/test/resources" includes="**/*.so"/>
+                                    <fileset dir="${basedir}/src/test/resources" includes="**/*.dll"/>
+                                    <fileset dir="${basedir}/src/main/resources" includes="**/*.h"/>
+                                </delete>
+                                <delete dir="${project.build.directory}/ytcrypto"/>
+                                <exec executable="git">
+                                    <arg value="clone"/>
+                                    <arg value="-b"/>
+                                    <arg value="master"/>
+                                    <arg value="https://github.com/yottachain/YTCrypto.git"/>
+                                    <arg value="${project.build.directory}/ytcrypto"/>
+                                </exec>
+                                <exec executable="go" dir="${project.build.directory}/ytcrypto">
+                                    <env key="CC" value="x86_64-linux-gnu-gcc"/>
+                                    <env key="GOOS" value="linux"/>
+                                    <env key="GOARCH" value="amd64"/>
+                                    <env key="CGO_ENABLED" value="1"/>
+                                    <arg value="build"/>
+                                    <arg value="-buildmode=c-shared"/>
+                                    <arg value="-o"/>
+                                    <arg value="${basedir}/src/main/resources/linux-x86-64/ytcrypto.so"/>
+                                    <arg value="wrapper/wrapper.go"/>
+                                </exec>
+                                <exec executable="go" dir="${project.build.directory}/ytcrypto">
+                                    <env key="CC" value="x86_64-w64-mingw32-gcc"/>
+                                    <env key="GOOS" value="windows"/>
+                                    <env key="GOARCH" value="amd64"/>
+                                    <env key="CGO_ENABLED" value="1"/>
+                                    <arg value="build"/>
+                                    <arg value="-buildmode=c-shared"/>
+                                    <arg value="-o"/>
+                                    <arg value="${basedir}/src/main/resources/win32-x86-64/ytcrypto.dll"/>
+                                    <arg value="wrapper/wrapper.go"/>
+                                </exec>
+                                <exec executable="go" dir="${project.build.directory}/ytcrypto">
+                                    <env key="CC" value="aarch64-linux-gnu-gcc"/>
+                                    <env key="GOOS" value="linux"/>
+                                    <env key="GOARCH" value="arm64"/>
+                                    <env key="CGO_ENABLED" value="1"/>
+                                    <arg value="build"/>
+                                    <arg value="-buildmode=c-shared"/>
+                                    <arg value="-o"/>
+                                    <arg value="${basedir}/src/main/resources/linux-aarch64/ytcrypto.so"/>
+                                    <arg value="wrapper/wrapper.go"/>
+                                </exec>
+                                <copy tofile="${basedir}/src/test/resources/linux-x86-64/ytcrypto.so" file="${basedir}/src/main/resources/linux-x86-64/ytcrypto.so"/>
+                                <copy tofile="${basedir}/src/test/resources/win32-x86-64/ytcrypto.dll" file="${basedir}/src/main/resources/win32-x86-64/ytcrypto.dll"/>
+                                <copy tofile="${basedir}/src/test/resources/linux-aarch64/ytcrypto.so" file="${basedir}/src/main/resources/linux-aarch64/ytcrypto.so"/>
+                                <delete>
+                                    <fileset dir="${basedir}/src/main/resources" includes="**/*.h"/>
+                                </delete>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
         <finalName>${project.artifactId}-${project.version}</finalName>
     </build>
