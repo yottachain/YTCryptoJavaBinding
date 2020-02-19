@@ -62,7 +62,7 @@
                                 <exec executable="git">
                                     <arg value="clone"/>
                                     <arg value="-b"/>
-                                    <arg value="dev"/>
+                                    <arg value="release"/>
                                     <arg value="https://github.com/yottachain/YTCrypto.git"/>
                                     <arg value="${project.build.directory}/ytcrypto"/>
                                 </exec>
